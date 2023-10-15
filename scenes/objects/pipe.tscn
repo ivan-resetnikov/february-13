@@ -1,0 +1,77 @@
+[gd_scene load_steps=5 format=3 uid="uid://dq4rjejoqjxxh"]
+
+[ext_resource type="Texture2D" uid="uid://cw35c6lmf0vmi" path="res://assets/textures/objects/pipe.png" id="1_2ws4p"]
+
+[sub_resource type="GDScript" id="GDScript_06dhe"]
+resource_name = "pipe"
+script/source = "extends StaticBody2D
+
+
+@export_category(\"Pipe\")
+@export var game : Node
+
+
+# This function resets pip position
+func _reset_position() -> void:
+	position.x = 586
+	position.y = 479 + randi_range(-200, 200)
+
+
+# This function handles movement of the pipe
+func _move_pipe(delta: float) -> void:
+	position.x -= 4 * delta * 60 * game.speed
+	
+	if position.x < -38:
+		_reset_position()
+
+
+# This function adds score to the playet and player required sound
+func score_area_body_entered(body) -> void:
+	if body.is_in_group('Player'):
+		game.score += 1
+		game.ui.hud.update_score()
+
+
+func _physics_process(delta: float) -> void:
+	_move_pipe(delta)
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_b4lpl"]
+size = Vector2(74, 594)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2eb7s"]
+size = Vector2(2, 270)
+
+[node name="Pipe" type="StaticBody2D" groups=["Obstacle"]]
+script = SubResource("GDScript_06dhe")
+
+[node name="Bottom Collider" type="CollisionShape2D" parent="."]
+visible = false
+position = Vector2(0, 432)
+shape = SubResource("RectangleShape2D_b4lpl")
+debug_color = Color(1, 0, 0, 0.419608)
+
+[node name="Top Collider" type="CollisionShape2D" parent="."]
+visible = false
+position = Vector2(0, -432)
+shape = SubResource("RectangleShape2D_b4lpl")
+debug_color = Color(1, 0, 0, 0.419608)
+
+[node name="Top Sprite" type="Sprite2D" parent="."]
+position = Vector2(0, -432)
+rotation = -3.14159
+scale = Vector2(3, 3)
+texture = ExtResource("1_2ws4p")
+
+[node name="Bottom Sprite" type="Sprite2D" parent="."]
+position = Vector2(0, 432)
+scale = Vector2(3, 3)
+texture = ExtResource("1_2ws4p")
+
+[node name="Score Area" type="Area2D" parent="."]
+
+[node name="Collider" type="CollisionShape2D" parent="Score Area"]
+shape = SubResource("RectangleShape2D_2eb7s")
+debug_color = Color(0, 1, 0, 0.419608)
+
+[connection signal="body_entered" from="Score Area" to="." method="score_area_body_entered"]

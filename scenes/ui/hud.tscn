@@ -1,0 +1,489 @@
+[gd_scene load_steps=21 format=3 uid="uid://c6kyphyakvyh0"]
+
+[ext_resource type="FontFile" uid="uid://dq6rbh0fheahy" path="res://assets/fonts/pixelod_bold.ttf" id="1_ybipq"]
+[ext_resource type="Texture2D" uid="uid://se37h5ow5qx5" path="res://assets/textures/ui/settings.png" id="2_l7aj7"]
+[ext_resource type="AudioStream" uid="uid://wlbfsl3bixdx" path="res://assets/sounds/score_normal.wav" id="3_yvj2s"]
+[ext_resource type="AudioStream" uid="uid://by5n1d6mk1414" path="res://assets/sounds/score_special.wav" id="4_ifl4w"]
+
+[sub_resource type="GDScript" id="GDScript_jox0y"]
+resource_name = "hud"
+script/source = "extends Control
+
+
+@export_category(\"HUD\")
+@export var game : Node
+
+@onready var score_label : Label = $\"Score Container/Score Label\"
+@onready var splash_label : Label = $Splash
+@onready var animation : AnimationPlayer = $Animation
+@onready var setting_menu : Panel = $\"Setting Menu\"
+@onready var music_menu : OptionButton = $\"Setting Menu/MarginContainer/Settings/Music Menu\"
+@onready var language_menu : OptionButton = $\"Setting Menu/MarginContainer/Settings/Language Menu\"
+@onready var sound_score_normal : AudioStreamPlayer = $\"Sounds/Score Normal\"
+@onready var sound_score_special : AudioStreamPlayer = $\"Sounds/Score Special\"
+
+var last_game_speed : float = 0
+var splashes : PackedStringArray
+
+signal tap()
+
+
+# This function set's the score label text and plays and animation
+func update_score() -> void:
+	score_label.text = str(game.score)
+	
+	if game.score % 25 == 0:
+		sound_score_special.play()
+	
+	else:
+		sound_score_normal.play()
+	
+	animation.play(\"add_score\")
+
+
+func _reset_splash() -> void:
+	splash_label.text = splashes[randi_range(0, splashes.size() - 1)]
+
+
+# This function shows/hides the setting menu
+func _show_settings_menu() -> void:
+	if not setting_menu.visible:
+		setting_menu.show()
+		
+		last_game_speed = game.speed
+		game.speed = 0
+	
+	else:
+		setting_menu.hide()
+		game.speed = last_game_speed
+
+
+# This function shows UI
+func show_ui() -> void:
+	animation.play(\"UI_appear\")
+
+
+# This function hides UI
+func hide_ui() -> void:
+	animation.play(\"UI_disappear\")
+
+
+# Music volume slider callback
+func _music_volume_value_changed(value: int) -> void:
+	AudioServer.set_bus_volume_db(0, value)
+
+
+# Sound volume slider callback
+func _sound_volume_value_changed(value: int) -> void:
+	AudioServer.set_bus_volume_db(1, value)
+
+
+# Language menu selection callback
+func _language_selected(index):
+	TranslationServer.set_locale(language_menu.get_item_text(index).to_lower())
+
+
+func _ready() -> void:
+	TranslationServer.set_locale(\"en\")
+	
+	splashes = File.read_file(\"res://data/splashes.txt\").split(\"\\n\")
+	_reset_splash()
+
+
+func _tap_pressed() -> void:
+	tap.emit()
+
+
+func _music_selected(index):
+	game.load_music(index)
+"
+
+[sub_resource type="Gradient" id="Gradient_egui6"]
+offsets = PackedFloat32Array(0.470968, 1)
+colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.337255)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_4e2ho"]
+gradient = SubResource("Gradient_egui6")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.541284, 0.5)
+
+[sub_resource type="LabelSettings" id="LabelSettings_clnpk"]
+font = ExtResource("1_ybipq")
+font_size = 76
+outline_size = 15
+outline_color = Color(0.125, 0.117188, 0.191406, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_laf8c"]
+font = ExtResource("1_ybipq")
+outline_size = 10
+outline_color = Color(0.117188, 0.109375, 0.179688, 1)
+
+[sub_resource type="Gradient" id="Gradient_8okjn"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(0, 0, 0, 0.501961)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_h14do"]
+gradient = SubResource("Gradient_8okjn")
+fill_to = Vector2(0.995413, 0)
+
+[sub_resource type="LabelSettings" id="LabelSettings_bigah"]
+font = ExtResource("1_ybipq")
+font_size = 51
+
+[sub_resource type="LabelSettings" id="LabelSettings_1wc8a"]
+font = ExtResource("1_ybipq")
+font_color = Color(1, 1, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_1dpij"]
+font_size = 25
+
+[sub_resource type="LabelSettings" id="LabelSettings_yedb2"]
+font_size = 25
+
+[sub_resource type="Animation" id="Animation_5t57x"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tap:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(247, 1080)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Score Container/HI Score Label:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Splash:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Score Container:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_1evek"]
+resource_name = "UI_appear"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tap:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(0.2, 1),
+"update": 0,
+"values": [Vector2(247, 1025), Vector2(247, 614)]
+}
+
+[sub_resource type="Animation" id="Animation_vcq81"]
+resource_name = "UI_disappear"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tap:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(0.2, 1),
+"update": 0,
+"values": [Vector2(247, 614), Vector2(247, 1025)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Score Container/HI Score Label:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Splash:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_hk7x6"]
+resource_name = "add_score"
+length = 0.25
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Score Container:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1.2, 1.2), Vector2(1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_luoyb"]
+_data = {
+"RESET": SubResource("Animation_5t57x"),
+"UI_appear": SubResource("Animation_1evek"),
+"UI_disappear": SubResource("Animation_vcq81"),
+"add_score": SubResource("Animation_hk7x6")
+}
+
+[node name="HUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_jox0y")
+
+[node name="Vignette" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture2D_4e2ho")
+
+[node name="Score Container" type="Node2D" parent="."]
+position = Vector2(270, 75)
+
+[node name="Score Label" type="Label" parent="Score Container"]
+texture_filter = 1
+offset_left = -25.0
+offset_top = -47.0
+offset_right = 34.0
+offset_bottom = 49.0
+mouse_filter = 1
+text = "0"
+label_settings = SubResource("LabelSettings_clnpk")
+
+[node name="HI Score Label" type="Label" parent="Score Container"]
+offset_left = 40.0
+offset_top = -33.0
+offset_right = 80.0
+offset_bottom = -10.0
+text = "HI: 0"
+label_settings = SubResource("LabelSettings_laf8c")
+
+[node name="Tap" type="Node2D" parent="."]
+position = Vector2(247, 1080)
+
+[node name="Tap BG" type="TextureRect" parent="Tap"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -306.0
+offset_top = -36.0
+offset_right = 327.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture2D_h14do")
+
+[node name="Label" type="Label" parent="Tap/Tap BG"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -45.0
+offset_top = -13.0
+offset_right = 45.0
+offset_bottom = 13.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Tap to Play!"
+label_settings = SubResource("LabelSettings_bigah")
+
+[node name="Splash" type="Label" parent="."]
+layout_mode = 0
+offset_left = 35.0
+offset_top = 166.0
+offset_right = 574.0
+offset_bottom = 196.0
+rotation = -0.109655
+text = "<splash>"
+label_settings = SubResource("LabelSettings_1wc8a")
+horizontal_alignment = 1
+
+[node name="Tap Button" type="TextureButton" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 48.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Settings Button" type="TextureButton" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -54.0
+offset_top = 3.0
+offset_right = -37.0
+offset_bottom = 19.0
+grow_horizontal = 0
+scale = Vector2(3, 3)
+texture_normal = ExtResource("2_l7aj7")
+
+[node name="Setting Menu" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -7.0
+offset_top = -98.0
+offset_right = 7.0
+offset_bottom = 102.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Setting Menu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 10
+
+[node name="Settings" type="GridContainer" parent="Setting Menu/MarginContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label 0" type="Label" parent="Setting Menu/MarginContainer/Settings"]
+layout_mode = 2
+text = "KEY_MUS"
+label_settings = SubResource("LabelSettings_1dpij")
+
+[node name="Music Menu" type="OptionButton" parent="Setting Menu/MarginContainer/Settings"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+flat = true
+item_count = 3
+selected = 0
+popup/item_0/text = "KEY_MUS_NORMAL"
+popup/item_0/id = 0
+popup/item_1/text = "KEY_MUS_DUBSTEP"
+popup/item_1/id = 1
+popup/item_2/text = "KEY_MUS_SYNTHWAVE"
+popup/item_2/id = 2
+
+[node name="Label 1" type="Label" parent="Setting Menu/MarginContainer/Settings"]
+layout_mode = 2
+text = "KEY_MUS_VOL"
+label_settings = SubResource("LabelSettings_yedb2")
+
+[node name="Music Volume" type="HSlider" parent="Setting Menu/MarginContainer/Settings"]
+layout_mode = 2
+min_value = -60.0
+max_value = 15.0
+
+[node name="Label 2" type="Label" parent="Setting Menu/MarginContainer/Settings"]
+layout_mode = 2
+text = "KEY_SFX_VOL"
+label_settings = SubResource("LabelSettings_yedb2")
+
+[node name="Sound Volume" type="HSlider" parent="Setting Menu/MarginContainer/Settings"]
+layout_mode = 2
+min_value = -60.0
+max_value = 15.0
+
+[node name="Label 3" type="Label" parent="Setting Menu/MarginContainer/Settings"]
+layout_mode = 2
+text = "KEY_LANG"
+label_settings = SubResource("LabelSettings_1dpij")
+
+[node name="Language Menu" type="OptionButton" parent="Setting Menu/MarginContainer/Settings"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+flat = true
+item_count = 3
+selected = 0
+popup/item_0/text = "EN"
+popup/item_0/id = 0
+popup/item_1/text = "CZ"
+popup/item_1/id = 1
+popup/item_2/text = "UA"
+popup/item_2/id = 2
+
+[node name="Animation" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_luoyb")
+}
+
+[node name="Sounds" type="Node" parent="."]
+
+[node name="Score Normal" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("3_yvj2s")
+bus = &"Sound"
+
+[node name="Score Special" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("4_ifl4w")
+bus = &"Sound"
+
+[connection signal="button_down" from="Tap Button" to="." method="_tap_pressed"]
+[connection signal="pressed" from="Settings Button" to="." method="_show_settings_menu"]
+[connection signal="item_selected" from="Setting Menu/MarginContainer/Settings/Music Menu" to="." method="_music_selected"]
+[connection signal="value_changed" from="Setting Menu/MarginContainer/Settings/Music Volume" to="." method="_music_volume_value_changed"]
+[connection signal="value_changed" from="Setting Menu/MarginContainer/Settings/Sound Volume" to="." method="_sound_volume_value_changed"]
+[connection signal="item_selected" from="Setting Menu/MarginContainer/Settings/Language Menu" to="." method="_language_selected"]

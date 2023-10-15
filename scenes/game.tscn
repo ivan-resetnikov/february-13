@@ -1,0 +1,177 @@
+[gd_scene load_steps=13 format=3 uid="uid://817ycxx1xndv"]
+
+[ext_resource type="Texture2D" uid="uid://bc74wfhitv5b5" path="res://assets/textures/misc/sky.png" id="1_efsrx"]
+[ext_resource type="PackedScene" uid="uid://d0br76c5ehxyv" path="res://scenes/entities/bird.tscn" id="1_o18s6"]
+[ext_resource type="Texture2D" uid="uid://dy5semnv73pcu" path="res://assets/textures/objects/forest.png" id="2_geyj6"]
+[ext_resource type="Texture2D" uid="uid://pqhtfk3i68ph" path="res://assets/textures/objects/fence.png" id="3_boea4"]
+[ext_resource type="Texture2D" uid="uid://c87t02as5o3g4" path="res://assets/textures/objects/ground.png" id="4_2d07h"]
+[ext_resource type="PackedScene" uid="uid://dq4rjejoqjxxh" path="res://scenes/objects/pipe.tscn" id="5_qngfq"]
+[ext_resource type="PackedScene" uid="uid://c505bg4n12f1o" path="res://scenes/misc/obstacle.tscn" id="7_gmlcu"]
+[ext_resource type="PackedScene" uid="uid://c6kyphyakvyh0" path="res://scenes/ui/hud.tscn" id="9_wdweh"]
+
+[sub_resource type="GDScript" id="GDScript_v6xlt"]
+resource_name = "game"
+script/source = "extends Node
+
+
+@onready var ui : CanvasLayer = $UI
+@onready var sound_music : AudioStreamPlayer = $Sounds/Music
+@onready var player : CharacterBody2D = $Entities/Bird
+
+var score : int = 0
+var speed : float = 0
+var state : String = \"idle\"
+
+
+# This function loads music file to the music player
+func load_music(index: int) -> void:
+	sound_music.stream = load(\"res://assets/music/\" + str(index) + \".mp3\")
+
+
+# This function handles volume change
+func _physics_process(_delta: float) -> void:
+	if not sound_music.playing and not state == \"dead\":
+		sound_music.play()
+
+
+func _ready() -> void:
+	load_music(0)
+	ui.hud.show_ui()
+
+
+# Stops music
+func stop_music() -> void:
+	sound_music.stop()
+	state = \"dead\"
+
+
+func _tap():
+	if state == \"idle\":
+		ui.hud.hide_ui()
+		
+		state = \"playing\"
+		speed = 1
+		
+		player.movement.can_move = true
+	
+	player.movement.tap()
+"
+
+[sub_resource type="GDScript" id="GDScript_dy16f"]
+resource_name = "level"
+script/source = "extends Node
+"
+
+[sub_resource type="GDScript" id="GDScript_3wow4"]
+resource_name = "level_background"
+script/source = "extends Node2D
+
+
+@onready var game : Node = $\"../..\"
+@onready var forest : Node = $Forest
+@onready var fence : Node = $Fence
+@onready var ground : Node = $Ground
+
+
+# This function scrolls and repeats background sprites
+func _scroll_background() -> void:
+	forest.position.x -= 1.5 * game.speed
+	fence.position.x -= 1.8 * game.speed
+	ground.position.x -= 2.0 * game.speed
+	
+	if forest.position.x < -204 * 3 + 102 * 3: forest.position.x = 102 * 3
+	if fence.position.x < -204 * 3 + 102 * 3: fence.position.x = 102 * 3
+	if ground.position.x < -204 * 3 + 102 * 3: ground.position.x = 102 * 3
+
+
+func _physics_process(_delta: float) -> void:
+	_scroll_background()
+"
+
+[sub_resource type="GDScript" id="GDScript_kd4dj"]
+resource_name = "ui"
+script/source = "extends CanvasLayer
+
+
+@onready var hud : Control = $HUD
+"
+
+[node name="Game" type="Node"]
+script = SubResource("GDScript_v6xlt")
+
+[node name="Level" type="Node" parent="."]
+script = SubResource("GDScript_dy16f")
+
+[node name="Background" type="Node2D" parent="Level"]
+script = SubResource("GDScript_3wow4")
+
+[node name="Sky" type="Sprite2D" parent="Level/Background"]
+position = Vector2(306, 478)
+scale = Vector2(3, 3)
+texture = ExtResource("1_efsrx")
+
+[node name="Forest" type="Sprite2D" parent="Level/Background"]
+position = Vector2(306, 746)
+scale = Vector2(3, 3)
+texture = ExtResource("2_geyj6")
+
+[node name="Scroll" type="Sprite2D" parent="Level/Background/Forest"]
+position = Vector2(204, 0)
+texture = ExtResource("2_geyj6")
+
+[node name="Fence" type="Sprite2D" parent="Level/Background"]
+position = Vector2(307, 812)
+scale = Vector2(3, 3)
+texture = ExtResource("3_boea4")
+
+[node name="Scroll" type="Sprite2D" parent="Level/Background/Fence"]
+position = Vector2(204, 0)
+texture = ExtResource("3_boea4")
+
+[node name="Ground" type="Sprite2D" parent="Level/Background"]
+position = Vector2(306, 1013)
+scale = Vector2(3, 3)
+texture = ExtResource("4_2d07h")
+
+[node name="Scroll" type="Sprite2D" parent="Level/Background/Ground"]
+position = Vector2(204, 0)
+texture = ExtResource("4_2d07h")
+
+[node name="Roof Obstacle" parent="Level" instance=ExtResource("7_gmlcu")]
+visible = false
+position = Vector2(270, -30)
+scale = Vector2(10, 1)
+
+[node name="Floor Obstacle" parent="Level" instance=ExtResource("7_gmlcu")]
+visible = false
+position = Vector2(270, 946)
+scale = Vector2(10, 1)
+
+[node name="Objects" type="Node" parent="."]
+
+[node name="Pipe 0" parent="Objects" node_paths=PackedStringArray("game") instance=ExtResource("5_qngfq")]
+position = Vector2(586, 479)
+game = NodePath("../..")
+
+[node name="Pipe 1" parent="Objects" node_paths=PackedStringArray("game") instance=ExtResource("5_qngfq")]
+position = Vector2(902, 479)
+game = NodePath("../..")
+
+[node name="Entities" type="Node" parent="."]
+
+[node name="Bird" parent="Entities" node_paths=PackedStringArray("game") instance=ExtResource("1_o18s6")]
+position = Vector2(63, 484)
+game = NodePath("../..")
+
+[node name="Sounds" type="Node" parent="."]
+
+[node name="Music" type="AudioStreamPlayer" parent="Sounds"]
+bus = &"Music"
+
+[node name="UI" type="CanvasLayer" parent="."]
+script = SubResource("GDScript_kd4dj")
+
+[node name="HUD" parent="UI" node_paths=PackedStringArray("game") instance=ExtResource("9_wdweh")]
+game = NodePath("../..")
+
+[connection signal="tap" from="UI/HUD" to="." method="_tap"]

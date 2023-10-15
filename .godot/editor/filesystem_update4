@@ -1,0 +1,10 @@
+res://scenes/game.tscn
+res://scenes/ui/hud.tscn
+res://scenes/objects/pipe.tscn
+res://scenes/entities/bird.tscn
+res://default_bus_layout.tres
+res://data/translations.cz.translation
+res://data/translations.en.translation
+res://data/translations.ua.translation
+res://singletones/file.gd
+res://data/splashes.txt

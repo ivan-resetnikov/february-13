@@ -1,0 +1,346 @@
+[gd_scene load_steps=27 format=3 uid="uid://b53dxmyq88l5o"]
+
+[ext_resource type="FontFile" uid="uid://dq6rbh0fheahy" path="res://assets/fonts/pixelod-bold.ttf" id="1_0jkpq"]
+[ext_resource type="Texture2D" uid="uid://bc74wfhitv5b5" path="res://assets/textures/sky.png" id="1_5et5q"]
+[ext_resource type="PackedScene" uid="uid://d0br76c5ehxyv" path="res://scenes/entities/bird.tscn" id="1_o18s6"]
+[ext_resource type="Texture2D" uid="uid://dy5semnv73pcu" path="res://assets/textures/forest.png" id="2_7vdpl"]
+[ext_resource type="Texture2D" uid="uid://5cimiq2nvt2h" path="res://assets/textures/music.png" id="2_67buw"]
+[ext_resource type="Texture2D" uid="uid://pqhtfk3i68ph" path="res://assets/textures/fence.png" id="3_3djmw"]
+[ext_resource type="Texture2D" uid="uid://c87t02as5o3g4" path="res://assets/textures/ground.png" id="4_s6fly"]
+[ext_resource type="PackedScene" uid="uid://dq4rjejoqjxxh" path="res://scenes/entities/pipe.tscn" id="5_qngfq"]
+[ext_resource type="AudioStream" uid="uid://beqw64omrrm0s" path="res://assets/music/default.mp3" id="6_roqcx"]
+[ext_resource type="AudioStream" uid="uid://ccshruobkcfev" path="res://assets/music/dubstep.mp3" id="7_fyetx"]
+[ext_resource type="PackedScene" uid="uid://c505bg4n12f1o" path="res://scenes/objects/obstacle.tscn" id="7_gmlcu"]
+[ext_resource type="AudioStream" uid="uid://djjsi5sp1kqi0" path="res://assets/music/synthwave.mp3" id="8_bjf7v"]
+
+[sub_resource type="GDScript" id="GDScript_v6xlt"]
+resource_name = "game"
+script/source = "extends Node
+
+
+@onready var player = $Entities/Bird
+@onready var UI = $Screen
+@onready var UI_animation = $Screen/AnimationPlayer
+@onready var level_music = $Level/Music
+
+var score = 0
+var speed = 0
+var music_id = 0
+
+
+func _physics_process(_delta: float) -> void:
+	if not player.movement.can_move:
+		if Input.is_action_just_pressed(\"Flap\"):
+			player.movement.can_move = true
+			speed = 1
+			
+			UI_animation.play(\"tap_disappear\")
+		
+		player.position.y = 484 + sin(Time.get_ticks_msec() * 0.0025) * 15
+
+
+func _ready() -> void:
+	player.movement.can_move = false
+	
+	UI_animation.play(\"tap_appear\")
+
+
+func change_music():
+	music_id += 1
+	
+	if music_id > level_music.get_child_count() - 1:
+		music_id = 0
+	
+	# Change Music
+	for track in level_music.get_children():
+		track.stop()
+	
+	level_music.get_child(music_id).play()
+	
+	# Change Icon
+	$\"Screen/Change Music\".texture_normal.region.x = music_id * 16
+"
+
+[sub_resource type="GDScript" id="GDScript_7shkh"]
+resource_name = "UI"
+script/source = "extends CanvasLayer
+
+
+@onready var game = $\"..\"
+
+
+func update_score() -> void:
+	$\"Score Counter\".scale = Vector2(1.25, 1.25)
+	$\"Score Counter/Score Label\".text = str(game.score)
+
+
+func _physics_process(_delta: float) -> void:
+	$\"Score Counter\".scale += (Vector2(1, 1) - $\"Score Counter\".scale) * 0.25
+	$Tap.rotation_degrees = sin(Time.get_ticks_msec() * 0.0025) * 5
+
+
+func _ready() -> void:
+	update_score()
+"
+
+[sub_resource type="Gradient" id="Gradient_egui6"]
+offsets = PackedFloat32Array(0.470968, 1)
+colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.337255)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_eylfd"]
+gradient = SubResource("Gradient_egui6")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.541284, 0.5)
+
+[sub_resource type="LabelSettings" id="LabelSettings_6b4wj"]
+font = ExtResource("1_0jkpq")
+font_size = 76
+outline_size = 15
+outline_color = Color(0.125, 0.117188, 0.191406, 1)
+
+[sub_resource type="Gradient" id="Gradient_8okjn"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(0, 0, 0, 0.501961)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_0ltib"]
+gradient = SubResource("Gradient_8okjn")
+fill_to = Vector2(0.995413, 0)
+
+[sub_resource type="LabelSettings" id="LabelSettings_d5nkd"]
+font = ExtResource("1_0jkpq")
+font_size = 51
+
+[sub_resource type="Animation" id="Animation_1evek"]
+resource_name = "tap_appear"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tap:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(0.2, 1),
+"update": 0,
+"values": [Vector2(247, 1025), Vector2(247, 614)]
+}
+
+[sub_resource type="Animation" id="Animation_5t57x"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tap:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(247, 1080)]
+}
+
+[sub_resource type="Animation" id="Animation_vcq81"]
+resource_name = "tap_disappear"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tap:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(0.2, 1),
+"update": 0,
+"values": [Vector2(247, 614), Vector2(247, 1025)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_luoyb"]
+_data = {
+"RESET": SubResource("Animation_5t57x"),
+"tap_appear": SubResource("Animation_1evek"),
+"tap_disappear": SubResource("Animation_vcq81")
+}
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xjbo4"]
+atlas = ExtResource("2_67buw")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="GDScript" id="GDScript_3wow4"]
+resource_name = "level_background"
+script/source = "extends Node
+
+
+@onready var game = get_node('/root/Game')
+
+
+func _physics_process(_delta: float) -> void:
+	$Forest.position.x -= 1.5 * game.speed
+	$Fence.position.x -= 2 * game.speed
+	$Ground.position.x -= 2 * game.speed
+	
+	if $Forest.position.x < -204 * 3 + 102 * 3: $Forest.position.x = 102 * 3
+	if $Fence.position.x < -204 * 3 + 102 * 3: $Fence.position.x = 102 * 3
+	if $Ground.position.x < -204 * 3 + 102 * 3: $Ground.position.x = 102 * 3
+"
+
+[node name="Game" type="Node"]
+script = SubResource("GDScript_v6xlt")
+
+[node name="Screen" type="CanvasLayer" parent="."]
+script = SubResource("GDScript_7shkh")
+
+[node name="Vignette" type="TextureRect" parent="Screen"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture2D_eylfd")
+
+[node name="Score Counter" type="Control" parent="Screen"]
+layout_mode = 3
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 2.0
+offset_top = 80.0
+offset_right = 42.0
+offset_bottom = 120.0
+grow_horizontal = 2
+
+[node name="Score Label" type="Label" parent="Screen/Score Counter"]
+texture_filter = 1
+layout_mode = 1
+offset_left = -25.0
+offset_top = -47.0
+offset_right = 34.0
+offset_bottom = 49.0
+mouse_filter = 1
+text = "0"
+label_settings = SubResource("LabelSettings_6b4wj")
+
+[node name="Tap" type="Control" parent="Screen"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 247.0
+offset_top = 1080.0
+offset_right = 287.0
+offset_bottom = 1120.0
+
+[node name="Tap BG" type="TextureRect" parent="Screen/Tap"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -316.5
+offset_top = -53.0
+offset_right = 316.5
+offset_bottom = 11.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture2D_0ltib")
+
+[node name="Label" type="Label" parent="Screen/Tap/Tap BG"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -45.0
+offset_top = -13.0
+offset_right = 45.0
+offset_bottom = 13.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Tap to Play!"
+label_settings = SubResource("LabelSettings_d5nkd")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Screen"]
+libraries = {
+"": SubResource("AnimationLibrary_luoyb")
+}
+
+[node name="Change Music" type="TextureButton" parent="Screen"]
+offset_right = 16.0
+offset_bottom = 16.0
+scale = Vector2(3, 3)
+texture_normal = SubResource("AtlasTexture_xjbo4")
+
+[node name="Level" type="Node" parent="."]
+
+[node name="Background" type="Node" parent="Level"]
+script = SubResource("GDScript_3wow4")
+
+[node name="Sky" type="Sprite2D" parent="Level/Background"]
+position = Vector2(306, 478)
+scale = Vector2(3, 3)
+texture = ExtResource("1_5et5q")
+
+[node name="Forest" type="Sprite2D" parent="Level/Background"]
+position = Vector2(306, 746)
+scale = Vector2(3, 3)
+texture = ExtResource("2_7vdpl")
+
+[node name="Forest Loop" type="Sprite2D" parent="Level/Background/Forest"]
+position = Vector2(204, 0)
+texture = ExtResource("2_7vdpl")
+
+[node name="Fence" type="Sprite2D" parent="Level/Background"]
+position = Vector2(307, 812)
+scale = Vector2(3, 3)
+texture = ExtResource("3_3djmw")
+
+[node name="Fence Loop" type="Sprite2D" parent="Level/Background/Fence"]
+position = Vector2(204, 0)
+texture = ExtResource("3_3djmw")
+
+[node name="Ground" type="Sprite2D" parent="Level/Background"]
+position = Vector2(306, 1013)
+scale = Vector2(3, 3)
+texture = ExtResource("4_s6fly")
+
+[node name="Ground Loop" type="Sprite2D" parent="Level/Background/Ground"]
+position = Vector2(204, 0)
+texture = ExtResource("4_s6fly")
+
+[node name="Objects" type="Node" parent="Level"]
+
+[node name="Pipe 0" parent="Level/Objects" instance=ExtResource("5_qngfq")]
+position = Vector2(586, 479)
+
+[node name="Pipe 1" parent="Level/Objects" instance=ExtResource("5_qngfq")]
+position = Vector2(902, 479)
+
+[node name="Obstacle 0" parent="Level/Objects" instance=ExtResource("7_gmlcu")]
+position = Vector2(272, -35)
+scale = Vector2(10.08, 1)
+
+[node name="Obstacle 1" parent="Level/Objects" instance=ExtResource("7_gmlcu")]
+position = Vector2(276, 946)
+scale = Vector2(10.08, 1)
+
+[node name="Music" type="Node" parent="Level"]
+
+[node name="Normal" type="AudioStreamPlayer" parent="Level/Music"]
+stream = ExtResource("6_roqcx")
+
+[node name="Dubstep" type="AudioStreamPlayer" parent="Level/Music"]
+stream = ExtResource("7_fyetx")
+
+[node name="Synthwave" type="AudioStreamPlayer" parent="Level/Music"]
+stream = ExtResource("8_bjf7v")
+
+[node name="Entities" type="Node" parent="."]
+
+[node name="Bird" parent="Entities" instance=ExtResource("1_o18s6")]
+position = Vector2(63, 484)
+
+[connection signal="pressed" from="Screen/Change Music" to="." method="change_music"]

@@ -1,0 +1,388 @@
+[gd_scene load_steps=19 format=3 uid="uid://d0br76c5ehxyv"]
+
+[ext_resource type="Texture2D" uid="uid://cbwao87hxk6wc" path="res://assets/textures/entities/bird.png" id="1_kxc8l"]
+[ext_resource type="AudioStream" uid="uid://bivd74pkb0et" path="res://assets/sounds/bird_flap.wav" id="2_okygs"]
+[ext_resource type="AudioStream" uid="uid://cipsojd2gxfds" path="res://assets/sounds/bird_hit.wav" id="3_8t4jr"]
+[ext_resource type="AudioStream" uid="uid://boswf33knj8xo" path="res://assets/sounds/bird_death.wav" id="4_xnwmd"]
+
+[sub_resource type="GDScript" id="GDScript_ppqdp"]
+resource_name = "bird"
+script/source = "extends CharacterBody2D
+
+
+@onready var movement = $Scripts/Movement
+
+@export_category(\"Bird\")
+@export var game : Node
+"
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_tu7n1"]
+radius = 2.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_17shf"]
+atlas = ExtResource("1_kxc8l")
+region = Rect2(0, 0, 37, 44)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_enge2"]
+atlas = ExtResource("1_kxc8l")
+region = Rect2(38, 0, 37, 44)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oqxyd"]
+atlas = ExtResource("1_kxc8l")
+region = Rect2(76, 0, 37, 44)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_upc7o"]
+atlas = ExtResource("1_kxc8l")
+region = Rect2(114, 0, 37, 44)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tivot"]
+atlas = ExtResource("1_kxc8l")
+region = Rect2(152, 0, 37, 44)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_cd6jq"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_17shf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_enge2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oqxyd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_upc7o")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tivot")
+}],
+"loop": true,
+"name": &"fly",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_w7meh"]
+radius = 8.0
+height = 52.0
+
+[sub_resource type="Animation" id="Animation_tpvee"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sounds/Hit:playing")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sounds/Death:playing")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Sprite:modulate")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath(".:rotation")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_2k4wb"]
+resource_name = "death"
+length = 3.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.6),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.6, 1.4),
+"transitions": PackedFloat32Array(0.5, 2.63901, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, -85), Vector2(0, 600)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.6, 1.4),
+"transitions": PackedFloat32Array(0.5, 2.63901, 1),
+"update": 0,
+"values": [0.0, -0.792379, 1.5708]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sounds/Hit:playing")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sounds/Death:playing")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0.8),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Sprite:modulate")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(1.2, 1.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath(".:rotation")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/7/type = "method"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Scripts/Movement")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(3),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"reload_game"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_g2j3w"]
+resource_name = "idle"
+length = 1.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 3, 2, 1]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ql30w"]
+_data = {
+"RESET": SubResource("Animation_tpvee"),
+"death": SubResource("Animation_2k4wb"),
+"idle": SubResource("Animation_g2j3w")
+}
+
+[sub_resource type="GDScript" id="GDScript_8danc"]
+resource_name = "bird_movement"
+script/source = "extends Node
+
+
+@onready var bird : CharacterBody2D = $\"../..\"
+@onready var sprite : AnimatedSprite2D = $\"../../Sprite\"
+@onready var animation : AnimationPlayer = $\"../../Animation\"
+@onready var sound_flap : AudioStreamPlayer = $\"../../Sounds/Flap\"
+@onready var sound_hit : AudioStreamPlayer = $\"../../Sounds/Hit\"
+@onready var sound_death : AudioStreamPlayer = $\"../../Sounds/Death\"
+
+const GRAVITY : float = 30
+const FLAP_FORCE : float = 700
+
+var can_move : bool = false
+
+
+func _physics_process(_delta: float) -> void:
+	if can_move and bird.game.speed > 0:
+		animation.stop()
+		
+		bird.velocity.y += GRAVITY
+		bird.rotation_degrees = bird.velocity.y * 0.05
+		
+		if bird.velocity.y < -FLAP_FORCE + 200: sprite.frame = 0
+		elif bird.velocity.y < -FLAP_FORCE + 275: sprite.frame = 1
+		elif bird.velocity.y < -FLAP_FORCE + 300: sprite.frame = 2
+		elif bird.velocity.y < -FLAP_FORCE + 325: sprite.frame = 3
+		else: sprite.frame = 4
+		
+		bird.move_and_slide()
+	
+	else:
+		if not animation.is_playing():
+			animation.play(\"idle\")
+
+
+func death_area_collided(obstacle) -> void:
+	if obstacle.is_in_group('Obstacle'):
+		animation.play(\"death\")
+		
+		bird.game.speed = 0
+		can_move = false
+		
+		bird.game.stop_music()
+
+
+func reload_game() -> void:
+	get_tree().reload_current_scene()
+
+
+func tap() -> void:
+	bird.velocity.y = -FLAP_FORCE
+	
+	sound_flap.play()
+"
+
+[node name="Bird" type="CharacterBody2D" groups=["Player"]]
+script = SubResource("GDScript_ppqdp")
+
+[node name="Collider" type="CollisionShape2D" parent="."]
+visible = false
+shape = SubResource("CircleShape2D_tu7n1")
+debug_color = Color(0, 1, 0, 0.419608)
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_cd6jq")
+animation = &"fly"
+
+[node name="Death Area" type="Area2D" parent="."]
+visible = false
+z_index = -1
+
+[node name="Collider" type="CollisionShape2D" parent="Death Area"]
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_w7meh")
+debug_color = Color(1, 0, 0, 0.419608)
+
+[node name="Animation" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_ql30w")
+}
+
+[node name="Scripts" type="Node" parent="."]
+
+[node name="Movement" type="Node" parent="Scripts"]
+script = SubResource("GDScript_8danc")
+
+[node name="Sounds" type="Node" parent="."]
+
+[node name="Flap" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("2_okygs")
+volume_db = -15.0
+bus = &"Sound"
+
+[node name="Hit" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("3_8t4jr")
+volume_db = -10.0
+bus = &"Sound"
+
+[node name="Death" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("4_xnwmd")
+volume_db = -10.0
+bus = &"Sound"
+
+[connection signal="body_entered" from="Death Area" to="Scripts/Movement" method="death_area_collided"]

@@ -1,0 +1,64 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="February 13'th"
+config/name_localized={
+"cs_CZ": "13 února"
+}
+config/tags=PackedStringArray("idea")
+run/main_scene="res://scenes/game.tscn"
+config/features=PackedStringArray("4.1", "Mobile")
+run/max_fps=60
+boot_splash/bg_color=Color(0.0823529, 0.0784314, 0.117647, 1)
+boot_splash/image="res://assets/splash_screen.png"
+boot_splash/use_filter=false
+
+[autoload]
+
+File="*res://singletones/file.gd"
+
+[display]
+
+window/size/viewport_width=540
+window/size/viewport_height=960
+window/size/resizable=false
+window/stretch/mode="viewport"
+window/handheld/orientation=1
+
+[editor]
+
+version_control/plugin_name="git"
+
+[input]
+
+ui_select={
+"deadzone": 0.5,
+"events": [Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":3,"pressure":0.0,"pressed":false,"script":null)
+]
+}
+Flap={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":32,"key_label":0,"unicode":32,"echo":false,"script":null)
+, Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":1,"position":Vector2(338, 4),"global_position":Vector2(342, 47),"factor":1.0,"button_index":1,"canceled":false,"pressed":true,"double_click":false,"script":null)
+]
+}
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://data/translations.cz.translation", "res://data/translations.en.translation", "res://data/translations.ua.translation")
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0
+renderer/rendering_method="mobile"
+textures/vram_compression/import_etc2_astc=true
+anti_aliasing/quality/msaa_2d=1
